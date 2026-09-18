@@ -938,11 +938,57 @@ function injectBaronHeaderStyles(locale) {
         return;
     }
 
+    const style = document.createElement('style');
+    style.id = 'baron-header-style';
+    style.textContent = `
+      body.baron-has-header .wrapper {
+        position: relative;
+        padding-top: 92px;
+      }
+      body.baron-has-header .map_list {
+        position: absolute;
+        top: 112px;
+        right: 160px;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        color: #999;
+        font-size: 18px;
+        line-height: 1.2;
+      }
+      body.baron-has-header .map_list li {
+        position: relative;
+        white-space: nowrap;
+      }
+      body.baron-has-header .map_list li + li::before {
+        content: '/';
+        position: absolute;
+        left: -12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-weight: 400;
+      }
+      body.baron-has-header .map_list li.on {
+        color: #000;
+        font-weight: 700;
+      }
+      @media (max-width: 1024px) {
+        body.baron-has-header .wrapper {
+          padding-top: 60px;
+        }
+        body.baron-has-header .map_list {
+          display: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return;
+
     const logoPath = locale === 'en'
-        ? getBaronRootPrefix() + '/assets/img/eng/logo_c.svg'
-        : getBaronRootPrefix() + '/assets/img/logo_c.svg';
-    const moreIconPath = getBaronRootPrefix() + '/assets/img/ico_more.svg';
-    const languageIconPath = getBaronRootPrefix() + '/assets/img/ico_language.svg';
+        ? '../../../assets/img/eng/logo_c.svg'
+        : '../../../assets/img/logo_c.svg';
 
     const style = document.createElement('style');
     style.id = 'baron-header-style';
@@ -1028,18 +1074,14 @@ function injectBaronHeaderStyles(locale) {
             mask-repeat: no-repeat;
         }
         header.js__header.baron-shell nav {
-            display: flex;
-            flex: 1 1 auto;
-            justify-content: center;
-            min-width: 0;
             height: 100%;
         }
         header.js__header.baron-shell nav ol {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 84px;
-            width: max-content;
+            gap: 28px;
+            width: 100%;
             height: 100%;
         }
         header.js__header.baron-shell nav ol li.depth1 {
@@ -1074,7 +1116,7 @@ function injectBaronHeaderStyles(locale) {
             display: inline-block;
             width: 16px;
             height: 16px;
-            background: url(${moreIconPath}) no-repeat center/contain;
+            background: url(../../../assets/img/ico_more.svg) no-repeat center/contain;
             margin-left: 4px;
             translate: 0 1px;
         }
@@ -1172,7 +1214,7 @@ function injectBaronHeaderStyles(locale) {
             width: 16px;
             height: 16px;
             margin-top: 4px;
-            background-image: url(${languageIconPath});
+            background-image: url(../../../assets/img/ico_language.svg);
             background-position: center;
             background-repeat: no-repeat;
             translate: 0 2px;
@@ -1558,16 +1600,11 @@ function injectBaronHeaderStyles(locale) {
                 opacity: 1;
             }
             header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1 ul.depth2 li ul.depth3 {
-                display: flex;
-                flex-direction: column;
                 gap: 10px;
                 margin-top: 12px;
                 padding-top: 12px;
                 font-size: 14px;
                 opacity: 1;
-            }
-            header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(4) ul.depth2 li.has_depth3 ul.depth3 {
-                grid-template-columns: none;
             }
             header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1 ul.depth2 li ul.depth3 li {
                 padding: 0;
@@ -1580,19 +1617,12 @@ function injectBaronHeaderStyles(locale) {
     document.head.appendChild(style);
 }
 
-function getBaronRootPrefix() {
-    return window.location.pathname.startsWith('/baron/') ? '/baron' : '';
-}
-
 function normalizeBaronIncludeHtml(html) {
-    const rootPrefix = getBaronRootPrefix();
-    const sanitizedHtml = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
-
-    return sanitizedHtml
-        .replace(/\.\.\/ko\//g, rootPrefix + '/ko/')
-        .replace(/\.\.\/en\//g, rootPrefix + '/en/')
-        .replace(/\.\.\/recruit\//g, rootPrefix + '/recruit/')
-        .replace(/\.\.\/assets\//g, rootPrefix + '/assets/');
+    return html
+        .replace(/\.\.\/ko\//g, '/ko/')
+        .replace(/\.\.\/en\//g, '/en/')
+        .replace(/\.\.\/recruit\//g, '/recruit/')
+        .replace(/\.\.\/assets\//g, '/assets/');
 }
 
 function loadBaronInclude(url, target, callback) {
@@ -1612,6 +1642,18 @@ function loadBaronInclude(url, target, callback) {
                 callback();
             }
         }
+    });
+}
+
+function trimPopupDepth3Nav(rootElement) {
+    const popupNav = rootElement.querySelector('.popup_wrap.sitemap .popup_contents_wrap nav, .popup_wrap.sitemap .nav');
+
+    if (!popupNav) {
+        return;
+    }
+
+    popupNav.querySelectorAll('li.has_depth3 > .depth3').forEach((depth3) => {
+        depth3.remove();
     });
 }
 
@@ -1676,7 +1718,6 @@ function setupBaronHeaderBrand() {
     }
 
     const currentFile = (window.location.pathname.split('/').pop() || 'index.html').split('?')[0];
-    const rootPrefix = getBaronRootPrefix();
     injectBaronHeaderStyles('ko');
 
     header.id = 'header';
@@ -1684,13 +1725,14 @@ function setupBaronHeaderBrand() {
 
     document.querySelectorAll('.popup_sitemap').forEach((popup) => popup.remove());
 
-    loadBaronInclude(rootPrefix + '/_include/header.html', '#header', function () {
-        loadBaronInclude(rootPrefix + '/_include/nav.html', '#header .corp .nav', function () {
-            loadBaronInclude(rootPrefix + '/_include/nav.html', '#header .popup_wrap.sitemap .popup_contents_wrap nav', function () {
+    loadBaronInclude('/_include/header.html', '#header', function () {
+        loadBaronInclude('/_include/nav.html', '#header .corp .nav', function () {
+            loadBaronInclude('/_include/nav.html', '#header .popup_wrap.sitemap .popup_contents_wrap nav', function () {
+                trimPopupDepth3Nav(header);
                 const languageLinks = header.querySelectorAll('.language a');
                 if (languageLinks.length >= 2) {
-                    languageLinks[0].setAttribute('href', `${rootPrefix}/ko/tova/${currentFile}`);
-                    languageLinks[1].setAttribute('href', `${rootPrefix}/en/tova/${currentFile}`);
+                    languageLinks[0].setAttribute('href', `/ko/tova/${currentFile}`);
+                    languageLinks[1].setAttribute('href', `/en/tova/${currentFile}`);
                     languageLinks[0].classList.add('on');
                     languageLinks[1].classList.remove('on');
                 }
@@ -1731,7 +1773,7 @@ function getBaronNavMarkup() {
                         </ul>
                     </li>
                     <li class="depth1 active">
-                        <span onclick="location.href='/ko/sv_sw.html'"><em>가치를 실현하는</em>패키지 S/W</span>
+                        <span onclick="location.href='/ko/sv_sw.html'"><em>혁신을 구현하는</em>패키지 S/W</span>
                         <ul class="depth2">
                             <li class="has_depth3">
                                 <a href="/ko/sv_sw.html">TOVA</a>
@@ -1754,9 +1796,9 @@ function getBaronNavMarkup() {
                         </ul>
                     </li>
                     <li class="depth1">
-                        <span onclick="location.href='/ko/sv_bigroom.html'"><em>가치를 실현하는</em>빅룸</span>
+                        <span onclick="location.href='/ko/sv_bigroom.html'"><em>협업을 지원하는</em>빅룸</span>
                         <ul class="depth2">
-                            <li><a href="/ko/sv_bigroom.html">빅룸</a></li>
+                            <li><a href="/ko/sv_bigroom.html">협업을 지원하는 빅룸</a></li>
                         </ul>
                     </li>
                     <li class="depth1">
@@ -1830,17 +1872,14 @@ function setupBaronHeaderInteractions(header) {
             }
         });
     }
-    mobileNavItems.forEach((item) => {
-        const trigger = item.querySelector(':scope > span');
-        const depth2 = item.querySelector(':scope > .depth2');
+    mobileNavItems.forEach((item, index) => {
+        item.addEventListener('click', function () {
+            if (mobileNavItems.length - 1 === index || window.innerWidth > 1024) {
+                return;
+            }
 
-        if (!trigger || !depth2 || trigger.dataset.mobileMenuBound === 'true') {
-            return;
-        }
-
-        trigger.dataset.mobileMenuBound = 'true';
-        trigger.addEventListener('click', function () {
-            if (window.innerWidth > 1024) {
+            const depth2 = item.querySelector('.depth2');
+            if (!depth2) {
                 return;
             }
 
@@ -1860,11 +1899,15 @@ function injectBaronFooterStyles(locale) {
         return;
     }
 
+    const style = document.createElement('style');
+    style.id = 'baron-footer-style';
+    style.textContent = ``;
+    document.head.appendChild(style);
+    return;
+
     const footerLogoPath = locale === 'en'
-        ? getBaronRootPrefix() + '/assets/img/eng/logo_w.svg'
-        : getBaronRootPrefix() + '/assets/img/logo_w.svg';
-    const footerMoreIconPath = getBaronRootPrefix() + '/assets/img/ico_more.svg';
-    const angleIconPath = getBaronRootPrefix() + '/assets/img/ico_angle.svg';
+        ? '../../../assets/img/eng/logo_w.svg'
+        : '../../../assets/img/logo_w.svg';
 
     const style = document.createElement('style');
     style.id = 'baron-footer-style';
@@ -1887,16 +1930,14 @@ function injectBaronFooterStyles(locale) {
             overflow: hidden;
         }
         footer#footer.baron-footer nav {
-            display: flex;
-            justify-content: center;
             min-width: 0;
         }
         footer#footer.baron-footer nav ol {
-            width: max-content;
-            max-width: none;
+            width: 100%;
+            max-width: 100%;
             display: flex;
-            justify-content: center;
-            gap: 84px;
+            justify-content: space-between;
+            gap: clamp(12px, 1vw, 24px);
         }
         footer#footer.baron-footer nav ol li.depth1 {
             display: flex;
@@ -1934,7 +1975,7 @@ function injectBaronFooterStyles(locale) {
             display: inline-block;
             width: 16px;
             height: 16px;
-            background: url(${footerMoreIconPath}) no-repeat center/contain;
+            background: url(../../../assets/img/ico_more.svg) no-repeat center/contain;
             margin-left: 4px;
             translate: 0 1px;
             filter: invert(1);
@@ -2010,7 +2051,7 @@ function injectBaronFooterStyles(locale) {
         footer#footer.baron-footer .family_wrap .family_btn i {
             width: 12px;
             height: 12px;
-            background: url(${angleIconPath}) no-repeat center/contain;
+            background: url(../../../assets/img/ico_angle.svg) no-repeat center/contain;
             transition: 0.2s;
         }
         footer#footer.baron-footer .family_wrap:has(.family_on) .family_btn i {
@@ -2096,23 +2137,15 @@ function injectBaronFooterStyles(locale) {
             background-color: #071933;
             cursor: pointer;
             box-shadow: none;
-            opacity: 1;
-            visibility: visible;
-        }
-        footer#footer.baron-footer .btn_top.topbtn_off {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        footer#footer.baron-footer .btn_top.topbtn_on {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-            transition: opacity 0.3s ease;
         }
         footer#footer.baron-footer .btn_top::after {
-            content: none;
+            position: absolute;
+            content: '';
+            top: 12px;
+            left: calc(50% - 15px);
+            width: 30px;
+            height: 2px;
+            background-color: #fff;
         }
         footer#footer.baron-footer .btn_top .arrow {
             width: 2px;
@@ -2205,7 +2238,6 @@ function injectBaronFooterStyles(locale) {
                 font-size: 12px;
             }
             footer#footer.baron-footer .btn_top {
-                display: block !important;
                 right: 24px;
                 width: 40px;
                 height: 40px;
@@ -2303,12 +2335,11 @@ function setupBaronFooterBrand() {
         return;
     }
 
-    const rootPrefix = getBaronRootPrefix();
     injectBaronFooterStyles('ko');
     footer.className = 'baron-footer';
 
-    loadBaronInclude(rootPrefix + '/_include/footer.html', '#footer', function () {
-        loadBaronInclude(rootPrefix + '/_include/nav.html', '#footer .nav', function () {
+    loadBaronInclude('/_include/footer.html', '#footer', function () {
+        loadBaronInclude('/_include/nav.html', '#footer .nav', function () {
             const depth3Menus = footer.querySelectorAll('.nav ol li.has_depth3 > .depth3');
             depth3Menus.forEach((menu) => {
                 menu.style.display = 'none';

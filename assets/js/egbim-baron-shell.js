@@ -1,10 +1,77 @@
 (function () {
   function getBaronRootPrefix() {
-    return window.location.pathname.startsWith('/baron/') ? '/baron' : '';
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    const rootMarkerSegments = ['ko', 'en', 'callback', 'assets', 'protected', 'public', 'recruit'];
+    return pathSegments.length && !rootMarkerSegments.includes(pathSegments[0]) ? '/' + pathSegments[0] : '';
   }
 
   function getBaronAssetPath(relativePath) {
     return getBaronRootPrefix() + '/assets/' + relativePath;
+  }
+
+  let baronPackageAuthPromise = null;
+
+  function getPackageAuthLabels(locale) {
+    return locale === 'en'
+      ? { login: 'LOGIN', logout: 'LOGOUT' }
+      : { login: '로그인', logout: '로그아웃' };
+  }
+
+  function configurePackageHeaderActions(root, locale, isAuthenticated) {
+    if (!root) {
+      return;
+    }
+
+    const loginWrap = root.querySelector('.header_login');
+    const loginLink = root.querySelector('.header_login_link');
+    if (!loginWrap || !loginLink) {
+      return;
+    }
+
+    const labels = getPackageAuthLabels(locale);
+    const html = document.documentElement;
+
+    html.setAttribute('data-baron-page-mode', 'landing');
+    if (isAuthenticated) {
+      html.setAttribute('data-baron-auth-state', 'authenticated');
+      loginWrap.hidden = false;
+      loginLink.textContent = labels.logout;
+      loginLink.href = '#';
+      loginLink.onclick = function (event) {
+        event.preventDefault();
+        window.baronSsoLogout?.();
+      };
+      return;
+    }
+
+    html.removeAttribute('data-baron-auth-state');
+    loginWrap.hidden = false;
+    loginLink.textContent = labels.login;
+    loginLink.href = `${window.location.pathname}?login=1`;
+    loginLink.onclick = null;
+  }
+
+  function ensurePackageBaronAuth(locale) {
+    if (!baronPackageAuthPromise) {
+      document.documentElement.setAttribute('data-baron-page-mode', 'landing');
+      const currentPath = window.location.pathname;
+      const loginRequested = new URL(window.location.href).searchParams.get('login') === '1';
+
+      baronPackageAuthPromise = import(`./baron-sso-auth.js?v=20260721-worker2`)
+        .then(function (module) {
+          return module.ensureBaronSsoAuth({
+            locale: locale,
+            publicPaths: [currentPath],
+            forceAuth: loginRequested,
+          });
+        })
+        .catch(function (error) {
+          console.error('Failed to initialize BARON SSO on package page.', error);
+          return { status: 'failed', error: error };
+        });
+    }
+
+    return baronPackageAuthPromise;
   }
 
   function injectBaronHeaderStyles(locale) {
@@ -72,7 +139,6 @@
         width: 100%;
         height: 100%;
         margin: 0 auto;
-        padding: 0 50px;
         background: #fff !important;
       }
       header.js__header.baron-shell .logo_box {
@@ -109,7 +175,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 84px;
+        gap: 24px;
         width: max-content;
         height: 100%;
       }
@@ -378,23 +444,23 @@
       header.js__header.baron-shell .popup_wrap.sitemap nav {
         width: 100%;
         max-width: 100%;
-        height: 100%;
+        height: auto;
         min-height: 0;
         flex: 1 1 auto;
         margin: 0 auto;
         text-align: left;
-        overflow: auto;
+        overflow: hidden;
         background-color: #fff;
-        padding: 0 160px 0 240px;
+        padding: 0 80px 0 100px;
       }
       header.js__header.baron-shell .popup_wrap.sitemap nav ol {
         width: 100%;
         height: 100%;
         display: grid;
         grid-template-columns: 100%;
-        grid-auto-rows: minmax(160px, auto);
+        grid-auto-rows: minmax(auto, 160px);
         align-content: center;
-        align-items: start;
+        align-items: center;
         gap: 0;
         justify-content: normal;
         position: relative;
@@ -414,9 +480,8 @@
         display: grid;
         grid-template-columns: 1fr 4fr;
         align-content: stretch;
-        align-items: start;
-        min-height: 160px;
-        height: auto;
+        align-items: center;
+        height: 100%;
         opacity: 0.5;
       }
       header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:hover {
@@ -452,8 +517,8 @@
         min-width: 0;
         width: auto;
         grid-template-columns: repeat(3, 1fr);
-        align-items: start;
-        height: auto;
+        align-items: center;
+        height: 100%;
         font-size: 18px;
         padding: 0 0 0 80px;
         background-color: transparent;
@@ -500,7 +565,8 @@
         font-size: 15px;
         opacity: 0.75;
       }
-      header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(1) ul.depth2 li.has_depth3 ul.depth3 {
+      header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(1) ul.depth2 li.has_depth3 ul.depth3,
+      header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(4) ul.depth2 li.has_depth3 ul.depth3 {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 8px 16px;
@@ -512,7 +578,8 @@
         padding: 0;
         text-align: left;
       }
-      header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(1) ul.depth2 li.has_depth3 ul.depth3 li {
+      header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(1) ul.depth2 li.has_depth3 ul.depth3 li,
+      header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(4) ul.depth2 li.has_depth3 ul.depth3 li {
         width: auto;
       }
       header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1 ul.depth2 li ul.depth3 li a {
@@ -522,7 +589,8 @@
         line-height: normal;
         font-weight: inherit;
       }
-      header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(1) ul.depth2 li.has_depth3 ul.depth3 li a {
+      header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(1) ul.depth2 li.has_depth3 ul.depth3 li a,
+      header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(4) ul.depth2 li.has_depth3 ul.depth3 li a {
         white-space: nowrap;
       }
       @media (max-width: 1024px) {
@@ -642,7 +710,8 @@
           font-size: 14px;
           opacity: 1;
         }
-        header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(1) ul.depth2 li.has_depth3 ul.depth3 {
+        header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(1) ul.depth2 li.has_depth3 ul.depth3,
+        header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1:nth-child(4) ul.depth2 li.has_depth3 ul.depth3 {
           grid-template-columns: none;
         }
         header.js__header.baron-shell .popup_wrap.sitemap nav ol li.depth1 ul.depth2 li ul.depth3 li {
@@ -698,7 +767,7 @@
         max-width: none;
         display: flex;
         justify-content: center;
-        gap: 84px;
+        gap: 38px;
       }
       footer#footer.baron-footer nav ol li.depth1 {
         display: flex;
@@ -1032,7 +1101,9 @@
   }
 
   function getBaronRootPrefix() {
-    return window.location.pathname.startsWith('/baron/') ? '/baron' : '';
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    const rootMarkerSegments = ['ko', 'en', 'callback', 'assets', 'protected', 'public', 'recruit'];
+    return pathSegments.length && !rootMarkerSegments.includes(pathSegments[0]) ? '/' + pathSegments[0] : '';
   }
 
   function normalizeBaronIncludeHtml(html) {
@@ -1046,23 +1117,22 @@
       .replace(/\.\.\/assets\//g, rootPrefix + '/assets/');
   }
 
+  // Share both in-flight and completed static includes within this page.
+  const htmlRequests = new Map();
+
   function loadBaronInclude(url, target, callback) {
-    $.ajax({
-      url: url,
-      async: true,
-      cache: false,
-      success: function (data) {
-        $(target).html(normalizeBaronIncludeHtml(data));
-        if (typeof callback === 'function') {
-          callback();
-        }
-      },
-      error: function (xhr, status, error) {
-        console.error('Failed to load ' + url + ':', error || status);
-        if (typeof callback === 'function') {
-          callback();
-        }
-      }
+    let request = htmlRequests.get(url);
+    if (!request) {
+      request = $.ajax({ url, cache: true, dataType: "html", timeout: 5000 });
+      htmlRequests.set(url, request);
+      request.fail(function () { htmlRequests.delete(url); });
+    }
+    request.done(function (data) {
+      $(target).html(normalizeBaronIncludeHtml(data));
+      if (typeof callback === "function") callback();
+    }).fail(function (xhr, status, error) {
+      console.error(`Failed to load ${url}:`, error || status);
+      if (typeof callback === "function") callback();
     });
   }
 
@@ -1259,7 +1329,10 @@
     header.innerHTML = '';
 
     const headerUrl = locale === 'en' ? rootPrefix + '/_include/eng/header.html' : rootPrefix + '/_include/header.html';
-    const navUrl = locale === 'en' ? rootPrefix + '/_include/eng/nav.html' : rootPrefix + '/_include/nav.html';
+    const isAuthenticated = Boolean(window.BARON_SSO_SESSION);
+    const navUrl = locale === 'en'
+      ? rootPrefix + (isAuthenticated ? '/_include/eng/nav.html' : '/_include/eng/nav-public.html')
+      : rootPrefix + (isAuthenticated ? '/_include/nav.html' : '/_include/nav-public.html');
 
     loadBaronInclude(headerUrl, '#header', function () {
       loadBaronInclude(navUrl, '#header .corp .nav', function () {
@@ -1274,6 +1347,7 @@
 
           activateBaronHeaderLink(header, currentFile, productKey);
           updateBaronBreadcrumb(header, currentFile, productKey, locale);
+          configurePackageHeaderActions(header, locale, isAuthenticated);
           setupBaronHeaderInteractions(header);
           if (typeof window.setupHeaderAnimation === 'function') {
             window.setupHeaderAnimation();
@@ -1333,7 +1407,10 @@
     const footer = shell.footer;
     const rootPrefix = getBaronRootPrefix();
     const footerUrl = locale === 'en' ? rootPrefix + '/_include/eng/footer.html' : rootPrefix + '/_include/footer.html';
-    const navUrl = locale === 'en' ? rootPrefix + '/_include/eng/nav.html' : rootPrefix + '/_include/nav.html';
+    const isAuthenticated = Boolean(window.BARON_SSO_SESSION);
+    const navUrl = locale === 'en'
+      ? rootPrefix + (isAuthenticated ? '/_include/eng/nav.html' : '/_include/eng/nav-public.html')
+      : rootPrefix + (isAuthenticated ? '/_include/nav.html' : '/_include/nav-public.html');
 
     injectBaronFooterStyles(locale);
     footer.className = 'baron-footer';
@@ -1387,7 +1464,8 @@
     });
   }
 
-  window.initProductBaronShell = function initProductBaronShell(productKey, locale) {
+  window.initProductBaronShell = async function initProductBaronShell(productKey, locale) {
+    await ensurePackageBaronAuth(locale);
     setupBaronHeaderBrand(productKey, locale);
     setupBaronFooterBrand(locale);
   };

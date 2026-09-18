@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -16,31 +16,31 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/assets/img/favicon.ico" type="image/x-icon" />
   <title>GAIA</title>
-  <link rel="stylesheet" href="./css/reset.css" />
-  <link rel="stylesheet" href="./css/font.css" />
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="../../assets/css/reset.css" />
+  <link rel="stylesheet" href="../../assets/css/font.css" />
+    <link rel="stylesheet" href="../../assets/css/layout.css" />
+<link rel="stylesheet" href="./css/style.css" />
 
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" type="text/css" />
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.9/dist/lenis.css">
-  <script type="text/javascript" src="./js/jquery-3.6.1.min.js"></script>
-  <script type="text/javascript" src="./js/jquery.mousewheel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
-  <script src="../../assets/js/egbim-baron-shell.js?v=20260713a"></script>
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    window.initProductBaronShell?.('gaia', 'ko');
-  });
-  </script>
+  <link rel="stylesheet" href="../../assets/css/lib/aos.min.css" />
+  <script src="../../assets/js/lib/aos.min.js"></script>
+  <script src="../../assets/js/lib/lenis.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/lib/lenis.min.css" />
+  <script src="../../assets/js/lib/jquery-3.6.1.min.js"></script>
+  
+  <script src="../../assets/js/lib/gsap.min.js"></script>
+  <script src="../../assets/js/lib/scrolltrigger.min.js"></script>
+  <script src="../../assets/js/lib/scrollToPlugin.min.js"></script>
   <script type="text/javascript" src="./js/value.js"></script>
+  <script type="module" src="../../assets/js/common.js?v=20260623-4"></script>
+    <link rel="preload" as="image" href="img/value_intro_bg_top.perf.webp" fetchpriority="high" />
 </head>
 
 <body>
-  <div class="wrapper">
+  <div class="wrap">
+    <header id="header"></header>
+    <ul class="map_list"></ul>
     <!-- 컨텐츠 시작 -->
     <div class="container value">
       <!-- <div class="mouse_mark js__mouse_mark"><span>SCROLL</span></div> -->
@@ -298,12 +298,12 @@
           <ul class="imgs">
             <li class="on">
               <div class="imgs__relative">
-                <img src="./img/value_screen1.jpg" class="imgs__bg" alt="화면 미리보기">
+                <img loading="lazy" decoding="async" src="./img/value_screen1.jpg" class="imgs__bg" alt="화면 미리보기">
               </div>
             </li>
             <li>
               <div class="imgs__relative">
-                <img src="./img/value_screen1.jpg" class="imgs__bg" alt="화면 미리보기">
+                <img loading="lazy" decoding="async" src="./img/value_screen1.jpg" class="imgs__bg" alt="화면 미리보기">
                 <span class="pr1">파일메뉴</span>
                 <span class="pr2">상단메뉴</span>
                 <span class="pr3">설정 및 도움말</span>
@@ -315,42 +315,42 @@
             </li>
             <li>
               <div class="imgs__relative">
-                <img src="./img/value_screen1.jpg" class="imgs__bg" alt="화면 미리보기">
+                <img loading="lazy" decoding="async" src="./img/value_screen1.jpg" class="imgs__bg" alt="화면 미리보기">
                 <span class="pr1">현황</span>
                 <span class="pr2">상세계획</span>
                 <span class="pr3">작업자</span>
                 <div class="img_box">
-                  <object data="./img/value_screenM_02.png"></object>
+                  <object data="./img/value_screenM_02.perf.webp"></object>
                 </div>
               </div>
             </li>
             <li>
               <div class="imgs__relative">
-                <img src="./img/value_screen2.jpg" class="imgs__bg" alt="화면 미리보기">
+                <img loading="lazy" decoding="async" src="./img/value_screen2.perf.webp" class="imgs__bg" alt="화면 미리보기">
                 <span class="pr1">새로고침</span>
                 <span class="pr2">수행작업자</span>
                 <span class="pr3">현장현황</span>
                 <span class="pr4">현장 지층정보</span>
                 <div class="img_box">
-                  <object data="./img/value_screenM_03.png"></object>
+                  <object data="./img/value_screenM_03.perf.webp"></object>
                 </div>
               </div>
             </li>
             <li>
               <div class="imgs__relative">
-                <img src="./img/value_screen3.jpg" class="imgs__bg" alt="화면 미리보기">
+                <img loading="lazy" decoding="async" src="./img/value_screen3.perf.webp" class="imgs__bg" alt="화면 미리보기">
                 <span class="pr1">분류</span>
                 <span class="pr2">Header 정보</span>
                 <span class="pr3">주상도 편집</span>
                 <span class="pr4">본문</span>
                 <div class="img_box">
-                  <object data="./img/value_screenM_04.png"></object>
+                  <object data="./img/value_screenM_04.perf.webp"></object>
                 </div>
               </div>
             </li>
             <li>
               <div class="imgs__relative">
-                <img src="./img/value_screen4.jpg" class="imgs__bg" alt="화면 미리보기">
+                <img loading="lazy" decoding="async" src="./img/value_screen4.perf.webp" class="imgs__bg" alt="화면 미리보기">
                 <span class="pr1">성과품 목록</span>
                 <span class="pr2">미리보기</span>
                 <div class="img_box">
@@ -375,16 +375,10 @@
   <script>
   AOS.init();
 
-  const lenis = new Lenis()
-  lenis.on('scroll', (e) => {
-    // console.log(e)
-  })
-  lenis.on('scroll', ScrollTrigger.update)
-  gsap.ticker.add((time) => {
-    lenis.raf(time * 1000)
-  })
-  gsap.ticker.lagSmoothing(0)
+  /* Local Lenis disabled for global integration */
   </script>
+    <footer id="footer"></footer>
+    </div>
 </body>
 
 

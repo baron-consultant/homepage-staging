@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -16,23 +16,24 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/assets/img/favicon.ico" type="image/x-icon" />
   <title>TOVA</title>
-  <link rel="stylesheet" href="./css/reset.css" />
-  <link rel="stylesheet" href="./css/font.css" />
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="../../assets/css/reset.css" />
+  <link rel="stylesheet" href="../../assets/css/font.css" />
+    <link rel="stylesheet" href="../../assets/css/layout.css" />
+<link rel="stylesheet" href="./css/style.css" />
 
-  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" type="text/css" />
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.9/dist/lenis.css">
-  <script type="text/javascript" src="./js/jquery-3.6.1.min.js"></script>
-  <script type="text/javascript" src="./js/jquery.mousewheel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/lib/aos.min.css" />
+  <script src="../../assets/js/lib/aos.min.js"></script>
+  <script src="../../assets/js/lib/lenis.min.js"></script>
+  <link rel="stylesheet" href="../../assets/css/lib/lenis.min.css" />
+  <script src="../../assets/js/lib/jquery-3.6.1.min.js"></script>
+  
+  <script src="../../assets/js/lib/gsap.min.js"></script>
+  <script src="../../assets/js/lib/scrolltrigger.min.js"></script>
+  <script src="../../assets/js/lib/scrollToPlugin.min.js"></script>
 
-  <script type="text/javascript" src="./js/common.js?v=20260713a"></script>
-  <script type="text/javascript" src="./js/popup.js"></script>
+  <script type="module" src="../../assets/js/common.js?v=20260623-4"></script>
   <script type="text/javascript" src="./js/public.js"></script>
   <script>
   function goto(id) {
@@ -42,15 +43,17 @@
     });
   }
   </script>
+    <link rel="preload" as="image" href="img/public_intro_bg.perf.webp" fetchpriority="high" />
 </head>
 
 <body>
   <!-- "js__"로 시작하는 클래스는 only 자바스크립트용입니다. -->
   <!-- XXXX js__넣어서 css 작성 금지 XXXX -->
-  <div class="wrapper">
+  <div class="wrap wrapper">
     <!-- Header -->
 <!-- Header -->
-            <header class="js__header"></header>
+            <header id="header"></header>
+    <ul class="map_list"></ul>
             <!-- //Header -->
 
 		<!-- //Header -->
@@ -73,6 +76,14 @@
         </div>
         <div class="condition">
           <div class="diagram_wrap" data-aos="fade-up" data-aos-duration="1000">
+            <div class="dia_element_top">
+              <div class="dia_element dia_element01">
+                <i></i>
+                <span class="dia_tit">직통경로, 1회/2회 환승<br><em>버스 경로</em> 탐색</span>
+                <div class="line"></div>
+              </div>
+            </div>
+
             <div class="dia_circles_wrap">
               <div class="circle_dash"></div>
               <div class="circle_belt"></div>
@@ -91,20 +102,18 @@
                 <div class="dot"></div>
               </div>
             </div>
-            <div class="dia_element e01">
-              <i></i>
-              <span class="dia_tit">직통경로, 1회/2회 환승<br><em>버스 경로</em> 탐색</span>
-              <div class="line"></div>
-            </div>
-            <div class="dia_element e02">
-              <i></i>
-              <span class="dia_tit">대기시간및 환승시간 반영<br><em>도시철도 경로</em> 탐색</span>
-              <div class="line"></div>
-            </div>
-            <div class="dia_element e03">
-              <i></i>
-              <span class="dia_tit">버스와 도시철도간<br><em>환승 경로</em> 탐색</span>
-              <div class="line"></div>
+
+            <div class="dia_element_bottom">
+              <div class="dia_element dia_element02">
+                <i></i>
+                <span class="dia_tit">대기시간및 환승시간 반영<br><em>도시철도 경로</em> 탐색</span>
+                <div class="line"></div>
+              </div>
+              <div class="dia_element dia_element03">
+                <i></i>
+                <span class="dia_tit">버스와 도시철도간<br><em>환승 경로</em> 탐색</span>
+                <div class="line"></div>
+              </div>
             </div>
 
           </div>
@@ -113,8 +122,50 @@
       </section>
 
       <section class="route js__mouse_area">
-        <!-- FOOTER -->
-        <footer id="footer"></footer>
+        <div class="fix">
+          <ul class="tabs js__mouse_not">
+            <li><a onclick="window.goto('sec1')"><i></i>버스 경로</a></li>
+            <li><a onclick="window.goto('sec2')"><i></i>도시철도 경로</a></li>
+            <li><a onclick="window.goto('sec3')"><i></i>환승 경로</a></li>
+          </ul>
+          <ul class="subs">
+            <li>
+              <span class="sub_tit">직통경로, 1회 환승, 2회 환승 경로 분석</span>
+              <span class="mid_tit">버스 경로</span>
+              <span class="sub_text">
+                버스 경로 탐색 시 출발지와 도착지의 이용 가능 정류장을 기반으로 <em>직통경로, 1회 환승, 2회 환승 경로를 분석</em>합니다.<br>
+                동일 구간에 중복 또는 유사 노선이 있는 경우 하나의 경로 구간으로 간주하고, 노선 중복에 따른 대기 시간을 조정하여 반영합니다.
+              </span>
+            </li>
+            <li>
+              <span class="sub_tit">대기시간 및 환승시간이 반영된 최단경로 분석</span>
+              <span class="mid_tit"><em>도시철도 경로</em></span>
+              <span class="sub_text">
+                도시철도 경로 탐색 시 출발지와 도착지의 이용 가능 역별로 <em>대기시간 및 환승시간이 반영된 최단경로를 분석</em>합니다. <br>
+                동일 구간에 완행노선과 급행노선이 함께 운행되는 경우, 급행경로와 완행경로를 별도로 분리하여 탐색합니다.
+              </span>
+            </li>
+            <li>
+              <span class="sub_tit">버스와 도시철도 간 환승경로 별도 분석</span>
+              <span class="mid_tit"><em>환승 경로</em></span>
+              <span class="sub_text">
+                TOVA에서는 대중교통 통행의 통합 배정을 위해 <em>버스와 도시철도 간 환승경로를 별도로 분석</em>합니다.<br>
+                역-정류장 간 환승연결 링크 또는 역 중심의 일정범위 내에서 도보로 이동 가능한 정류장에서 환승이 발생하도록 경로를 탐색합니다.
+              </span>
+            </li>
+          </ul>
+          <ul class="imgs">
+            <li><a onclick="window.goto('sec1')"></a></li>
+            <li><a onclick="window.goto('sec2')"></a></li>
+            <li><a onclick="window.goto('sec3')"></a></li>
+          </ul>
+        </div>
+        <div id="sec1"></div>
+        <div id="sec2"></div>
+        <div id="sec3"></div>
+      </section>
+
+      <section class="layout_fix_left process full_screen">
         <div class="left" data-aos="fade-right" data-aos-duration="1000">
           <div class="bg js__fixLeft_bg on"></div>
           <div class="bg js__fixLeft_bg"></div>
@@ -142,7 +193,7 @@
               도시부 복합수단 통행배정모형은 <em>통행 목적별 OD를 일괄적용</em>하고, <em>목적별 수단선택 모형을 적용</em>할 수 있도록 개발되었습니다. 또한, 도시부와 지역간 교통수단의
               특성을 반영하기 위해 각각의 수단선택모형 계수를 구분하여 적용할 수 있습니다. 이를 통해 <em>분석과정을 단순화</em>하고 통행 특성을 보다 <em>정확히 반영</em>할 수 있습니다.
             </div>
-            <object data="./img/public_process_01.svg"></object>
+            <object data="./img/public_process_01.perf.svg"></object>
           </div>
           <span class="mid_tit m" style="display: none;">
             <font class="num">02. </font>대중교통 요금 입력창
@@ -158,7 +209,7 @@
                 다양한 노선(버스, 도시철도, 민자노선 등)에 기본요금, 기본거리, 추가거리 및 추가요금을 적용할 수 있으며, <em>수도권 통합환승요금 제도 쉽게 반영</em>할 수 있습니다.
               </span>
             </div>
-            <object data="./img/public_process_02.svg"></object>
+            <object data="./img/public_process_02.perf.svg"></object>
           </div>
           <span class="mid_tit m" style="display: none;">
             <font class="num">03. </font>이용 가능한 역/정류장 설정
@@ -173,7 +224,7 @@
               공간적 형태가 적합하지 않은 경우, 존 중심으로부터 일정거리 내 역/정류장도 이용 가능하도록 하였습니다.<br>
               이를 통해 <em>특정 역이나 정류장에 통행량이 집중되는 문제를 해소</em>하였습니다.
             </div>
-            <object data="./img/public_process_03.svg"></object>
+            <object data="./img/public_process_03.perf.svg"></object>
           </div>
         </div>
       </section>
@@ -186,18 +237,11 @@
   <script>
   AOS.init();
 
-  const lenis = new Lenis()
-  lenis.on('scroll', (e) => {
-    //console.log(e)
-  })
-  lenis.on('scroll', ScrollTrigger.update)
-  gsap.ticker.add((time) => {
-    lenis.raf(time * 1000)
-  })
-  gsap.ticker.lagSmoothing(0)
+  /* Local Lenis disabled for global integration */
   </script>
 </body>
 </html>
+
 
 
 

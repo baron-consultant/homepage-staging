@@ -8,62 +8,100 @@ $(function () {
 
   $.ajaxSetup({ cache: false });
 
+  // Share both in-flight and completed static includes within this page.
+  const htmlRequests = new Map();
+
   function loadHTML(url, target, callback) {
-    $.ajax({
-      url: url,
-      async: true,
-      timeout: 5000,
-      success: function (data) {
-        $(target).html(data);
-        if (typeof callback === "function") callback();
-      },
-      error: function (xhr, status, error) {
-        console.error(`??Failed to load ${url}:`, error || status);
-        if (typeof callback === "function") callback();
-      },
+    let request = htmlRequests.get(url);
+    if (!request) {
+      request = $.ajax({ url, cache: true, dataType: "html", timeout: 5000 });
+      htmlRequests.set(url, request);
+      request.fail(function () { htmlRequests.delete(url); });
+    }
+    request.done(function (data) {
+      $(target).html(data);
+      if (typeof callback === "function") callback();
+    }).fail(function (xhr, status, error) {
+      console.error(`Failed to load ${url}:`, error || status);
+      if (typeof callback === "function") callback();
     });
   }
 
-  // ?��nav ?�결
+  // ?nav ?결
   function connectNavToMapList() {
     const currentPath = location.pathname.split("/").pop();
     const navLinks = document.querySelectorAll(
       "header .corp nav ol li.depth1 ul.depth2 li a"
     );
 
+    let matchedLink = null;
+
     navLinks.forEach((link) => {
       const href = link.getAttribute("href").split("/").pop();
       if (href === currentPath) {
-        const mapList = document.querySelector(".map_list");
-        if (mapList) {
-          const targetTitle = link.textContent.trim();
-          const categoryTitle = link
-            .closest(".depth1")
-            ?.querySelector("span")
-            ?.textContent.trim();
-          const subTitle = link
-            .closest(".depth1")
-            ?.querySelector("em")
-            ?.textContent.trim();
-          const mainTitle = categoryTitle.replace(subTitle, "");
-          mapList.innerHTML = "";
-          link.closest(".depth1").classList.add("active");
-          const liHome = document.createElement("li");
-          liHome.innerHTML = '<i class="home"></i>';
-
-          const liCategory = document.createElement("li");
-          liCategory.textContent = mainTitle || "";
-
-          const liOn = document.createElement("li");
-          liOn.classList.add("on");
-          liOn.textContent = targetTitle || "";
-
-          mapList.appendChild(liHome);
-          mapList.appendChild(liCategory);
-          mapList.appendChild(liOn);
+        if (matchedLink && matchedLink.closest('.depth3')) {
+          return;
+        }
+        if (!matchedLink || link.closest('.depth3')) {
+          matchedLink = link;
         }
       }
     });
+
+    if (matchedLink) {
+      const mapList = document.querySelector(".map_list");
+      if (mapList) {
+        mapList.innerHTML = "";
+        matchedLink.closest(".depth1").classList.add("active");
+
+        const hasDepth3 = matchedLink.closest("li.has_depth3");
+        if (hasDepth3) {
+          matchedLink.closest(".depth1").querySelectorAll("li.has_depth3").forEach(el => {
+            el.classList.remove("active");
+          });
+          hasDepth3.classList.add("active");
+        }
+        
+        const liHome = document.createElement("li");
+        liHome.innerHTML = '<i class="home"></i>';
+        mapList.appendChild(liHome);
+
+        const categoryTitle = matchedLink
+          .closest(".depth1")
+          ?.querySelector("span")
+          ?.textContent.trim();
+        const subTitle = matchedLink
+          .closest(".depth1")
+          ?.querySelector("em")
+          ?.textContent.trim();
+        const mainTitle = categoryTitle.replace(subTitle, "").trim();
+
+        const liCategory = document.createElement("li");
+        liCategory.textContent = mainTitle || "";
+        mapList.appendChild(liCategory);
+
+        const depth3El = matchedLink.closest('.depth3');
+        if (depth3El) {
+          const depth2Link = matchedLink.closest('.has_depth3')?.querySelector('a');
+          const depth2Title = depth2Link ? depth2Link.textContent.trim() : "";
+          const liDepth2 = document.createElement("li");
+          liDepth2.textContent = depth2Title;
+          mapList.appendChild(liDepth2);
+
+          const targetTitle = matchedLink.textContent.trim();
+          const liOn = document.createElement("li");
+          liOn.classList.add("on");
+          liOn.textContent = targetTitle || "";
+          mapList.appendChild(liOn);
+        } else {
+          const targetTitle = matchedLink.textContent.trim();
+          const liOn = document.createElement("li");
+          liOn.classList.add("on");
+          liOn.textContent = targetTitle || "";
+          mapList.appendChild(liOn);
+        }
+      }
+    }
   }
 
   function loadSitemapNav() {

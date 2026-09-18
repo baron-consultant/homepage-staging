@@ -12,30 +12,33 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/assets/img/favicon.ico" type="image/x-icon" />
     <title>TOVA 소개</title>
-    <link rel="stylesheet" href="./css/reset.css"/>
-    <link rel="stylesheet" href="./css/font.css"/>
+    <link rel="stylesheet" href="../../assets/css/reset.css" />
+    <link rel="stylesheet" href="../../assets/css/font.css" />
+    <link rel="stylesheet" href="../../assets/css/layout.css" />
     <link rel="stylesheet" href="./css/style.css"/>
     
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" type="text/css"/>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-	<script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script> 
-	<link rel="stylesheet" href="https://unpkg.com/lenis@1.1.9/dist/lenis.css">
-    <script type="text/javascript" src="./js/jquery-3.6.1.min.js"></script>
-    <script type="text/javascript" src="./js/jquery.mousewheel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
+    <link rel="stylesheet" href="../../assets/css/lib/aos.min.css" />
+    <script src="../../assets/js/lib/aos.min.js"></script>
+	<script src="../../assets/js/lib/lenis.min.js"></script> 
+<link rel="stylesheet" href="../../assets/css/lib/lenis.min.css" />
+    <script src="../../assets/js/lib/jquery-3.6.1.min.js"></script>
     
-    <script type="text/javascript" src="./js/common.js?v=20260713a"></script>
-    <script type="text/javascript" src="./js/popup.js"></script>
+    <script src="../../assets/js/lib/gsap.min.js"></script>
+    <script src="../../assets/js/lib/scrolltrigger.min.js"></script>
+    <script src="../../assets/js/lib/scrollToPlugin.min.js"></script>
+    
+    <script type="module" src="../../assets/js/common.js?v=20260623-4"></script>
     <script type="text/javascript" src="./js/value.js"></script>
+    <link rel="preload" as="image" href="img/value_intro_bg.perf.webp" fetchpriority="high" />
 </head>
 <body>
-    <div class="wrapper">
+    <div class="wrap">
         <!-- Header -->
 <!-- Header -->
-            <header class="js__header"></header>
+            <header id="header"></header>
+    <ul class="map_list"></ul>
             <!-- //Header -->
 
 		<!-- //Header -->
@@ -58,7 +61,7 @@
                 </div>
                 <div class="summarys_wrap">
                     <p>도로, 버스, 도시철도, 지역간 철도, 항공 및 해운 등 다양한 교통수요를 정밀하고 빠르게 분석하여, 교통 정책의 효과를 평가하고 효율성을 높이는 <em>한국형 통합 교통수요 분석 프로그램</em>입니다.</p>
-                    <img src="./img/value_intro_summary1.png" data-aos="fade-right" data-aos-duration="1000">
+                    <img src="./img/value_intro_summary1.perf.webp" data-aos="fade-right" data-aos-duration="1000">
                     <img src="./img/value_intro_summary2.jpg" data-aos="fade-left" data-aos-duration="1000">
                     <p>유사 소프트웨어들 중 <em>가장 빠르고 정밀한 공로 교통수요 분석결과를 제공</em>하며, 대한민국의 대중교통 이용특성과 요금제도, 관련자료 등 특수성 설명이 가능한 대중교통 분석 기능을 제공합니다.</p>
                 </div>
@@ -102,7 +105,7 @@
                 </div>
             </section>
             <div class="system_bg"></div>
-            <section class="system">
+            <section class="system full_screen">
                 <div class="system_tit">
                     <span>Keywords<br><em>for System</em></span>
                 </div>
@@ -169,7 +172,7 @@
                     </div>
                 </div>
             </section>
-            <section class="screen js__height_trigger js__mouse_area w">
+            <section class="screen js__height_trigger js__mouse_area w full_screen">
                 <div class="bg"></div>
                 <span class="grand_tit" data-aos="fade-down" data-aos-duration="1000"><font class="tova k">TOVA</font> 화면구성</span>
                 <p class="sub_text">
@@ -261,7 +264,7 @@
                             <span>위치 탐색기</span>
                             <span>지도</span>
                             <div class="img_box">
-                                <object data="./img/value_screenM_02.png"></object>
+                                <object data="./img/value_screenM_02.perf.webp"></object>
                             </div>
                         </li>
                         <li>
@@ -269,7 +272,7 @@
                             <span>그리기 설정</span>
                             <span>DB테이블</span>
                             <div class="img_box">
-                                <object data="./img/value_screenM_03.png"></object>
+                                <object data="./img/value_screenM_03.perf.webp"></object>
                             </div>
                         </li>
                     </ul>
@@ -289,18 +292,11 @@
     <script>
         AOS.init();
 		
-		const lenis = new Lenis()
-		lenis.on('scroll', (e) => {
-			// console.log(e)
-		})
-		lenis.on('scroll', ScrollTrigger.update)
-		gsap.ticker.add((time)=>{
-			lenis.raf(time * 1000)
-		})
-		gsap.ticker.lagSmoothing(0)
+		/* Local Lenis disabled for global integration */
     </script>
 </body>
 </html>
+
 
 
 
