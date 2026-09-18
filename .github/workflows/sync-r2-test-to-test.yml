@@ -58,6 +58,9 @@ jobs:
             --endpoint-url "$R2_ENDPOINT" \
             --delete \
             --exact-timestamps \
+            --copy-props none \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
             --dryrun
 
       - name: Synchronize source bucket to target bucket
@@ -67,6 +70,19 @@ jobs:
             --endpoint-url "$R2_ENDPOINT" \
             --delete \
             --exact-timestamps \
+            --copy-props none \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --only-show-errors
+
+          aws s3 rm "s3://${TARGET_BUCKET}/.git/" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --recursive \
+            --only-show-errors
+
+          aws s3 rm "s3://${TARGET_BUCKET}/.github/" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --recursive \
             --only-show-errors
 
       - name: Verify target bucket access
