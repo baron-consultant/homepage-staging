@@ -1,0 +1,78 @@
+name: Sync Test R2 Bucket
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type SYNC baron-hompage-test TO baron-hompage to continue"
+        required: true
+        type: string
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      R2_ACCOUNT_ID: ${{ secrets.CF_R2_ACCOUNT_ID }}
+
+    steps:
+      - name: Configure R2 access
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -eu
+
+          if [ "$CONFIRMATION" != "SYNC baron-hompage-test TO baron-hompage" ]; then
+            echo "::error::Confirmation text did not match. No bucket changes were made."
+            exit 1
+          fi
+
+          if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ] || [ -z "$R2_ACCOUNT_ID" ]; then
+            echo "::error::R2 deployment secrets are incomplete."
+            exit 1
+          fi
+
+          echo "R2_ENDPOINT=https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com" >> "$GITHUB_ENV"
+          echo "SOURCE_BUCKET=baron-hompage-test" >> "$GITHUB_ENV"
+          echo "TARGET_BUCKET=baron-hompage" >> "$GITHUB_ENV"
+
+      - name: Validate source and target buckets
+        run: |
+          set -eu
+          aws --version
+
+          aws s3api head-bucket \
+            --bucket "$SOURCE_BUCKET" \
+            --endpoint-url "$R2_ENDPOINT"
+
+          aws s3api head-bucket \
+            --bucket "$TARGET_BUCKET" \
+            --endpoint-url "$R2_ENDPOINT"
+
+      - name: Show synchronization plan
+        run: |
+          set -eu
+          aws s3 sync "s3://${SOURCE_BUCKET}" "s3://${TARGET_BUCKET}" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --delete \
+            --exact-timestamps \
+            --dryrun
+
+      - name: Synchronize source bucket to target bucket
+        run: |
+          set -eu
+          aws s3 sync "s3://${SOURCE_BUCKET}" "s3://${TARGET_BUCKET}" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --delete \
+            --exact-timestamps \
+            --only-show-errors
+
+      - name: Verify target bucket access
+        run: |
+          set -eu
+          aws s3api head-bucket \
+            --bucket "$TARGET_BUCKET" \
+            --endpoint-url "$R2_ENDPOINT"
+          echo "R2 synchronization completed: ${SOURCE_BUCKET} -> ${TARGET_BUCKET}"
