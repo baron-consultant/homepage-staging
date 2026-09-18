@@ -125,6 +125,17 @@ jobs:
             done
           }
 
+          refresh_sso_assets() {
+            while IFS= read -r path; do
+              [ -n "$path" ] || continue
+              [ -f "$path" ] || continue
+              echo "Refreshing required SSO asset $path"
+              upload_file "$path"
+            done <<'EOF'
+          assets/js/baron-sso-auth.js
+          EOF
+          }
+
           full_sync() {
             echo "Running full bucket sync"
             aws s3 sync ./ s3://$R2_BUCKET \
@@ -227,6 +238,12 @@ jobs:
 
           echo "Uploaded files: $changed_count"
           echo "Deleted files: $deleted_count"
+
+          # This module is imported by the deployed HTML but may not be part of
+          # the current commit's diff. Re-upload it on every incremental
+          # deployment so an incomplete earlier upload cannot leave the site
+          # with a 404 for the SSO bootstrap module.
+          refresh_sso_assets
 
           if [ "$changed_count" -eq 0 ] && [ "$deleted_count" -eq 0 ]; then
             echo "No deployable file changes detected."
