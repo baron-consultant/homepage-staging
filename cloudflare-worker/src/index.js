@@ -41,6 +41,8 @@ const DEFAULT_PUBLIC_EXACT_PATHS = [
   '/assets/js/public-landing.js',
   '/assets/js/eng/public-landing.js',
   '/assets/img/index.mp4',
+  '/assets/media/index-web.mp4',
+  '/assets/media/index-poster.jpg',
   '/assets/img/favicon.ico',
   '/assets/img/og-main-thumb_baron.JPG',
   '/assets/img/logo_c.svg',
