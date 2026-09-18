@@ -136,6 +136,18 @@ jobs:
           EOF
           }
 
+          refresh_public_include_assets() {
+            while IFS= read -r path; do
+              [ -n "$path" ] || continue
+              [ -f "$path" ] || continue
+              echo "Refreshing required public include $path"
+              upload_file "$path"
+            done <<'EOF'
+          _include/nav-public.html
+          _include/eng/nav-public.html
+          EOF
+          }
+
           full_sync() {
             echo "Running full bucket sync"
             aws s3 sync ./ s3://$R2_BUCKET \
@@ -244,6 +256,7 @@ jobs:
           # deployment so an incomplete earlier upload cannot leave the site
           # with a 404 for the SSO bootstrap module.
           refresh_sso_assets
+          refresh_public_include_assets
 
           if [ "$changed_count" -eq 0 ] && [ "$deleted_count" -eq 0 ]; then
             echo "No deployable file changes detected."
