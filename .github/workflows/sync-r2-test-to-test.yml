@@ -51,38 +51,33 @@ jobs:
             --bucket "$TARGET_BUCKET" \
             --endpoint-url "$R2_ENDPOINT"
 
+      - name: Download source bucket to runner
+        run: |
+          set -eu
+          mirror_dir="$(mktemp -d /tmp/r2-mirror.XXXXXX)"
+          echo "MIRROR_DIR=$mirror_dir" >> "$GITHUB_ENV"
+
+          aws s3 sync "s3://${SOURCE_BUCKET}" "$mirror_dir" \
+            --endpoint-url "$R2_ENDPOINT" \
+            --delete \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --only-show-errors
+
       - name: Show synchronization plan
         run: |
           set -eu
-          aws s3 sync "s3://${SOURCE_BUCKET}" "s3://${TARGET_BUCKET}" \
+          aws s3 sync "$MIRROR_DIR" "s3://${TARGET_BUCKET}" \
             --endpoint-url "$R2_ENDPOINT" \
             --delete \
-            --exact-timestamps \
-            --copy-props none \
-            --exclude ".git/*" \
-            --exclude ".github/*" \
             --dryrun
 
-      - name: Synchronize source bucket to target bucket
+      - name: Upload mirror to target bucket
         run: |
           set -eu
-          aws s3 sync "s3://${SOURCE_BUCKET}" "s3://${TARGET_BUCKET}" \
+          aws s3 sync "$MIRROR_DIR" "s3://${TARGET_BUCKET}" \
             --endpoint-url "$R2_ENDPOINT" \
             --delete \
-            --exact-timestamps \
-            --copy-props none \
-            --exclude ".git/*" \
-            --exclude ".github/*" \
-            --only-show-errors
-
-          aws s3 rm "s3://${TARGET_BUCKET}/.git/" \
-            --endpoint-url "$R2_ENDPOINT" \
-            --recursive \
-            --only-show-errors
-
-          aws s3 rm "s3://${TARGET_BUCKET}/.github/" \
-            --endpoint-url "$R2_ENDPOINT" \
-            --recursive \
             --only-show-errors
 
       - name: Verify target bucket access
