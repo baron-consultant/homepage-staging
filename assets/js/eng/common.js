@@ -68,14 +68,19 @@ const authResult = await ensureBaronSsoAuth(
 );
 
 const isAuthenticated = Boolean(authResult?.session);
+const workerAuth = window.BARON_WORKER_AUTH;
+const isWorkerAnonymous = Boolean(
+  workerAuth?.mode === 'worker' && workerAuth.authenticated !== true
+);
 const isAnonymousPublicPage = Boolean(isPublicInfoPage && !isAuthenticated);
+const shouldUsePublicNav = Boolean(isAnonymousPublicPage || isWorkerAnonymous);
 
 document.documentElement.dataset.baronAuthState = isAuthenticated ? 'authenticated' : 'anonymous';
 
 // ?�� AJAX 관??SCRIPT
 $(function () {
-  const includeVersion = '20260623-4';
-  const navIncludeFile = isAnonymousPublicPage ? 'nav-public.html' : 'nav.html';
+  const includeVersion = '20260918-1';
+  const navIncludeFile = shouldUsePublicNav ? 'nav-public.html' : 'nav.html';
   const includeBase = `${rootPrefix}/_include/eng`;
 
   $.ajaxSetup({ cache: false });
@@ -236,7 +241,7 @@ $(function () {
   }
 
   function trimPublicNav(root) {
-    if (!isAnonymousPublicPage || !root) {
+    if (!shouldUsePublicNav || !root) {
       return;
     }
 
@@ -279,7 +284,7 @@ $(function () {
       return;
     }
 
-    if (!isPublicInfoPage) {
+    if (!isPublicInfoPage && !isWorkerAnonymous) {
       loginWrap.hidden = true;
       return;
     }
