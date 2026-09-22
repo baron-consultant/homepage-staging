@@ -8,7 +8,7 @@ workers_dev = false
 # AUTH_REDIRECT_URI is optional in code, but keeping it explicit avoids redirect mismatch mistakes.
 AUTH_REDIRECT_URI = "https://test.baroncs.co.kr/auth/callback"
 AUTH_POST_LOGOUT_REDIRECT_URI = "https://test.baroncs.co.kr/"
-AUTH_SCOPE = "openid profile email"
+AUTH_SCOPE = "openid tenants profile email"
 
 # OIDC provider settings for the staging SSO app.
 # The app uses PKCE, so no client secret is required.
