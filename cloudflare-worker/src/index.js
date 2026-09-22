@@ -195,13 +195,18 @@ function buildConfig(url, env) {
   const publicExactPaths = parseCsv(env.PUBLIC_EXACT_PATHS);
   const protectedPrefixes = parseCsv(env.PROTECTED_PREFIXES);
   const internalOnlyPrefixes = parseCsv(env.INTERNAL_ONLY_PREFIXES);
+  const usesOidcConfig = Boolean(env.OIDC_CLIENT_ID);
   return {
-    clientId: String(env.AUTH_CLIENT_ID || ''),
-    clientSecret: String(env.AUTH_CLIENT_SECRET || ''),
-    authorizeUrl: String(env.AUTH_AUTHORIZE_URL || ''),
-    tokenUrl: String(env.AUTH_TOKEN_URL || ''),
-    userInfoUrl: String(env.AUTH_USERINFO_URL || ''),
-    logoutUrl: String(env.AUTH_LOGOUT_URL || ''),
+    clientId: String(env.OIDC_CLIENT_ID || env.AUTH_CLIENT_ID || ''),
+    // The staging OIDC app is PKCE-only. Ignore any legacy AUTH_CLIENT_SECRET
+    // that may still exist in the Cloudflare environment for this app.
+    clientSecret: usesOidcConfig
+      ? String(env.OIDC_CLIENT_SECRET || '')
+      : String(env.AUTH_CLIENT_SECRET || ''),
+    authorizeUrl: String(env.OIDC_AUTHORIZE_URL || env.AUTH_AUTHORIZE_URL || ''),
+    tokenUrl: String(env.OIDC_TOKEN_URL || env.AUTH_TOKEN_URL || ''),
+    userInfoUrl: String(env.OIDC_USERINFO_URL || env.AUTH_USERINFO_URL || ''),
+    logoutUrl: String(env.OIDC_LOGOUT_URL || env.AUTH_LOGOUT_URL || ''),
     redirectUri: String(env.AUTH_REDIRECT_URI || `${url.origin}/auth/callback`),
     postLogoutRedirectUri: String(env.AUTH_POST_LOGOUT_REDIRECT_URI || `${url.origin}/`),
     scope: String(env.AUTH_SCOPE || 'openid'),

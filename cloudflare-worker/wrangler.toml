@@ -10,6 +10,13 @@ AUTH_REDIRECT_URI = "https://test.baroncs.co.kr/auth/callback"
 AUTH_POST_LOGOUT_REDIRECT_URI = "https://test.baroncs.co.kr/"
 AUTH_SCOPE = "openid profile email"
 
+# OIDC provider settings for the staging SSO app.
+# The app uses PKCE, so no client secret is required.
+OIDC_CLIENT_ID = "de1c77a5-d861-4e45-bf06-11cf45b95489"
+OIDC_AUTHORIZE_URL = "https://sso.hmac.kr/oidc/oauth2/auth"
+OIDC_TOKEN_URL = "https://sso.hmac.kr/oidc/oauth2/token"
+OIDC_USERINFO_URL = "https://sso.hmac.kr/oidc/userinfo"
+
 # Session/cookie settings.
 SESSION_COOKIE_NAME = "baron_worker_session"
 OAUTH_COOKIE_NAME = "baron_worker_oauth"
@@ -28,14 +35,13 @@ INTERNAL_ONLY_PREFIXES = "/protected/"
 # GROUP_CLAIM = "groups"
 
 # Secret values should stay in the Cloudflare dashboard or via `wrangler secret put`.
-# Required secrets:
-# - AUTH_AUTHORIZE_URL
-# - AUTH_CLIENT_ID
-# - AUTH_TOKEN_URL
-# - AUTH_USERINFO_URL
+# Required secret:
 # - SESSION_SECRET
-# Optional secret:
+# Optional secret for non-PKCE clients:
 # - AUTH_CLIENT_SECRET
+#
+# The legacy AUTH_* OIDC environment names are still accepted by the Worker, but
+# the OIDC_* values above are the source of truth for this staging app.
 
 # Currently unused by src/index.js. Keep only for reference if root mapping is added later.
 # PUBLIC_ROOT_KEY = "ko/index.html"

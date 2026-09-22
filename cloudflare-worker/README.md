@@ -38,14 +38,20 @@
 
 ## 필요한 환경변수
 
-`wrangler secret put` 또는 Cloudflare 대시보드에서 아래 값을 채운다.
+현재 스테이징 OIDC 설정은 `wrangler.toml`의 `OIDC_*` 변수로 관리한다.
 
-- `SESSION_SECRET`
-- `AUTH_CLIENT_ID`
-- `AUTH_AUTHORIZE_URL`
-- `AUTH_TOKEN_URL`
-- `AUTH_USERINFO_URL`
-- `AUTH_LOGOUT_URL`
+- `OIDC_CLIENT_ID`
+- `OIDC_AUTHORIZE_URL`
+- `OIDC_TOKEN_URL`
+- `OIDC_USERINFO_URL`
+
+현재 앱은 PKCE 방식이므로 클라이언트 시크릿을 사용하지 않는다.
+기존 `AUTH_CLIENT_SECRET`이 남아 있어도 `OIDC_CLIENT_ID`가 설정된 새 구성에서는 사용하지 않는다.
+
+`SESSION_SECRET`은 반드시 `wrangler secret put` 또는 Cloudflare 대시보드에서 설정한다.
+
+기존 배포와의 호환성을 위해 `AUTH_CLIENT_ID`, `AUTH_AUTHORIZE_URL`,
+`AUTH_TOKEN_URL`, `AUTH_USERINFO_URL`, `AUTH_LOGOUT_URL`도 fallback으로 인식한다.
 
 선택 변수:
 
@@ -125,13 +131,8 @@
 
 - Worker가 실제 route 또는 custom domain에 배포되어 있어야 한다.
 - `SITE_BUCKET` 바인딩이 실제 비공개 R2 버킷에 연결되어 있어야 한다.
-- 필수 secret이 모두 입력되어 있어야 한다.
-	- `SESSION_SECRET`
-	- `AUTH_CLIENT_ID`
-	- `AUTH_AUTHORIZE_URL`
-	- `AUTH_TOKEN_URL`
-	- `AUTH_USERINFO_URL`
-	- `AUTH_LOGOUT_URL`
+- `wrangler.toml`의 `OIDC_*` 설정이 배포되어 있어야 한다.
+- 필수 secret인 `SESSION_SECRET`이 입력되어 있어야 한다.
 - IDP에 Worker 도메인의 callback URL이 등록되어 있어야 한다.
 	- 예: `https://test.baroncs.co.kr/auth/callback`
 - 로그아웃 후 복귀 URI도 IDP와 Worker 설정이 서로 맞아야 한다.
